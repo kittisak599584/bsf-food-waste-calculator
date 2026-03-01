@@ -5,43 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BSF Food Waste Calculator v3</title>
     <style>
-        body { font-family: 'Sarabun', 'Prompt', sans-serif; background: #f0f8f0; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2e8b57; }
-        section { margin-bottom: 40px; }
-        .add-btn, .export-btn { background: #2e8b57; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1em; margin: 10px 0; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
-        input, select { width: 100%; padding: 10px; box-sizing: border-box; }
-        .result { background: #e8f5e8; padding: 25px; border-radius: 12px; font-size: 1.15em; }
-        .highlight { background: #fff3cd; padding: 10px; border-radius: 8px; margin: 15px 0; }
-        label { display: block; margin: 12px 0 6px; font-weight: 600; }
-        #chartContainer { height: 300px; margin: 20px 0; }
+        body { 
+            font-family: 'Sarabun', 'Prompt', sans-serif; 
+            background: #f0f8f0; 
+            margin: 0; 
+            padding: 15px; 
+            line-height: 1.5;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            text-align: center; 
+            color: #2e8b57; 
+            margin-bottom: 10px; 
+        }
+        h2 { color: #2e8b57; margin-top: 30px; }
+        section { margin-bottom: 30px; }
+        .add-btn, .export-btn { 
+            background: #2e8b57; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1.1em; 
+            margin: 10px 0; 
+        }
+        .add-btn:hover, .export-btn:hover { background: #1f6b45; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 15px 0; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            text-align: center; 
+        }
+        th { background: #e8f5e8; }
+        input, select { 
+            width: 100%; 
+            padding: 8px; 
+            box-sizing: border-box; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+        }
+        .result { 
+            background: #e8f5e8; 
+            padding: 20px; 
+            border-radius: 10px; 
+            font-size: 1.1em; 
+        }
+        .highlight { 
+            background: #fff3cd; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        label { 
+            display: block; 
+            margin: 10px 0 5px; 
+            font-weight: 600; 
+        }
+        #chartContainer { 
+            height: 280px; 
+            margin: 20px 0; 
+        }
+        #exportBtn { 
+            display: block; 
+            margin: 20px auto; 
+        }
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.6em; }
+            table, th, td { font-size: 0.9em; }
+        }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Chart.js CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2pdf.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <div class="container" id="pdfContent">
     <h1>🐛 BSF FOOD WASTE CALCULATOR v3</h1>
-    <p style="text-align:center; font-size:1.3em;">เครื่องมือคำนวณเต็มวงจรเลี้ยงหนอน BSF (พัฒนาโดย กิตติศักดิ์ • อ้างอิงชีท อ.ดร.นภศูล + งานวิจัย)</p>
+    <p style="text-align:center; font-size:1.2em; color:#555;">
+        เครื่องมือคำนวณเต็มวงจรเลี้ยงหนอน BSF<br>
+        (พัฒนาโดย กิตติศักดิ์ • อ้างอิงชีท อ.ดร.นภศูล + งานวิจัย)
+    </p>
 
     <!-- ① รายการอาหารเสีย -->
     <section>
         <h2>① รายการอาหารเสีย</h2>
-        <button class="add-btn" onclick="addItem()">＋ เพิ่มรายการอาหาร</button>
-        <table id="itemTable"><thead><tr><th>ประเภทอาหาร</th><th>กก./วัน</th><th>ลบ</th></tr></thead><tbody></tbody></table>
+        <button class="add-btn" onclick="addItem()">+ เพิ่มรายการอาหาร</button>
+        <table id="itemTable">
+            <thead><tr><th>ประเภทอาหาร</th><th>กก./วัน</th><th>ลบ</th></tr></thead>
+            <tbody></tbody>
+        </table>
         <p><strong>อาหารเสียรวมต่อวัน:</strong> <span id="totalWaste">0.00</span> กก./วัน</p>
     </section>
 
     <!-- ② ตั้งค่าระบบพื้นฐาน -->
     <section>
         <h2>② ตั้งค่าระบบพื้นฐาน</h2>
-        <label>อัตราการย่อย (BCR %): <input type="number" id="bcr" value="10" step="0.5"></label>
-        <label>วันเก็บเกี่ยว: <input type="number" id="days" value="14"></label>
+        <label>อัตราการย่อย (BCR %): <input type="number" id="bcr" value="10" step="0.5" min="1" max="30"></label>
+        <label>วันเก็บเกี่ยว (วัน): <input type="number" id="days" value="14" min="7" max="30"></label>
         <button class="add-btn" onclick="calculate()">🔬 คำนวณระบบ BSF</button>
     </section>
 
@@ -49,45 +122,51 @@
     <section class="result" id="resultSection" style="display:none;">
         <h2>③ ผลการคำนวณหลัก</h2>
         <p>🐛 หนอน BSF ที่ต้องการ: <strong id="bsfNeeded">0.00</strong> กก.</p>
-        <p>จำนวนหนอนทั้งหมด: <strong id="larvaeCount">0</strong> ตัว</p>
-        <p>ลดขยะได้: <strong id="wasteReduce">0.00</strong> กก./วัน (65%)</p>
-        <p>ผลิตหนอนสด/รอบ: <strong id="harvest">0.00</strong> กก.</p>
+        <p>จำนวนหนอนทั้งหมดโดยประมาณ: <strong id="larvaeCount">0</strong> ตัว</p>
+        <p>ลดขยะได้: <strong id="wasteReduce">0.00</strong> กก./วัน (≈65%)</p>
+        <p>ผลิตหนอนสดต่อรอบ: <strong id="harvest">0.00</strong> กก.</p>
         <p>มูลหนอน (ปุ๋ย): <strong id="frass">0.00</strong> กก./วัน</p>
-        <div class="highlight" id="incomeBox" style="margin-top:15px;"></div>
+        
+        <div class="highlight" id="incomeBox"></div>
 
-        <!-- กราฟใหม่ -->
-        <h3>แนวโน้มผลผลิต (หนอนสด + มูลปุ๋ย ต่อเดือน)</h3>
-        <canvas id="bsfChart" width="400" height="200"></canvas>
+        <h3>แนวโน้มผลผลิตต่อเดือน</h3>
+        <div id="chartContainer">
+            <canvas id="bsfChart"></canvas>
+        </div>
     </section>
 
-    <!-- ④ คำนวณลง baby BSF ลงกระบะ -->
+    <!-- ④ คำนวณ baby BSF ลงกระบะ -->
     <section id="traySection" style="display:none;">
-        <h2>④ คำนวณลง baby BSF (5 วัน) ลงกระบะ</h2>
-        <label>ขนาดกระบะ (กว้าง cm): <input type="number" id="trayWidth" value="40"></label>
-        <label>ขนาดกระบะ (ยาว cm): <input type="number" id="trayLength" value="60"></label>
-        <label>ความหนาแน่น (ตัว/ซม²): <input type="range" id="density" min="4" max="9" step="0.1" value="5" oninput="this.nextElementSibling.value=this.value"> <output>5</output></label>
+        <h2>④ คำนวณ baby BSF (อายุ 5 วัน) ลงกระบะ</h2>
+        <label>ขนาดกระบะ - กว้าง (cm): <input type="number" id="trayWidth" value="40" min="20"></label>
+        <label>ขนาดกระบะ - ยาว (cm): <input type="number" id="trayLength" value="60" min="30"></label>
+        <label>ความหนาแน่นที่ต้องการ (ตัว/ซม²): 
+            <input type="range" id="density" min="4" max="9" step="0.1" value="5" oninput="document.getElementById('densityValue').textContent = this.value">
+            <span id="densityValue">5</span> ตัว/ซม²
+        </label>
         <label>วิธีวัด baby BSF:
             <select id="measureMethod">
-                <option value="rough">ช้อนคร่าว ๆ (1,429 ตัว/ช้อน)</option>
-                <option value="detailed">ช้อนละเอียด (1,200 ตัว/ช้อน)</option>
-                <option value="weight" selected>ชั่งกรัม (712.5 ตัว/กรัม)</option>
+                <option value="rough">ช้อนคร่าว ๆ (≈1,429 ตัว/ช้อน)</option>
+                <option value="detailed">ช้อนละเอียด (≈1,200 ตัว/ช้อน)</option>
+                <option value="weight" selected>ชั่งกรัม (≈712.5 ตัว/กรัม)</option>
             </select>
         </label>
-        <button class="add-btn" onclick="calculateTray()">📦 คำนวณจำนวนกระบะ + หนอนลง</button>
+        <button class="add-btn" onclick="calculateTray()">📦 คำนวณจำนวนกระบะ + ปริมาณที่ต้องใช้</button>
         <div id="trayResult" class="result" style="display:none; margin-top:15px;"></div>
     </section>
 
     <!-- ปุ่ม Export PDF -->
-    <button class="export-btn" onclick="exportToPDF()" id="exportBtn" style="display:none;">📄 Export เป็น PDF</button>
+    <button class="export-btn" id="exportBtn" onclick="exportToPDF()" style="display:none;">📄 Export เป็น PDF</button>
 
     <!-- ⑤ สูตรและคำแนะนำ -->
     <section>
         <h2>⑤ สูตรและคำแนะนำ</h2>
-        <ul>
-            <li>หนอนที่ต้องการ = อาหารเสีย (กก.)</li>
-            <li>จำนวนหนอน = อาหารเสีย × 1,000 ÷ 0.15</li>
-            <li>จำนวนกระบะ = จำนวนหนอน ÷ (พื้นที่กระบะ × density)</li>
-            <li><strong>แนะนำ:</strong> Density 5 ตัว/ซม² = ดีที่สุดสำหรับบ้าน</li>
+        <ul style="padding-left:20px;">
+            <li>หนอนที่ต้องการ ≈ อาหารเสียรวม (กก.)</li>
+            <li>จำนวนหนอน ≈ อาหารเสีย (ก.) ÷ 0.15</li>
+            <li>หนอนสดที่ได้ ≈ อาหารเสีย × BCR × วันเก็บเกี่ยว</li>
+            <li>แนะนำ density 5 ตัว/ซม² เพื่อผลผลิตดีที่สุด (จากชีท อ.ดร.นภศูล และงานวิจัย)</li>
+            <li>Density เกิน 9 ตัว/ซม² อาจทำให้หนอนโตช้าและมีกลิ่น</li>
         </ul>
     </section>
 </div>
@@ -95,54 +174,66 @@
 <script>
 let items = [];
 let myChart = null;
+let totalLarvaeGlobal = 0;
 
 function addItem() {
-    const type = prompt("ประเภทอาหาร (เช่น ผัก, ผลไม้)");
+    const type = prompt("ประเภทอาหาร (เช่น เศษผัก, ผลไม้, ข้าวเหลือ)");
     if (!type) return;
     const kg = parseFloat(prompt("กิโลกรัมต่อวัน", "1")) || 0;
+    if (kg <= 0) return alert("กรุณาใส่จำนวนมากกว่า 0");
     items.push({type, kg});
     renderTable();
 }
+
 function renderTable() {
     const tbody = document.querySelector("#itemTable tbody");
     tbody.innerHTML = "";
     let total = 0;
     items.forEach((item, i) => {
         total += item.kg;
-        tbody.innerHTML += `<tr><td>${item.type}</td><td>${item.kg.toFixed(2)}</td><td><button onclick="deleteItem(${i})">ลบ</button></td></tr>`;
+        const row = `<tr><td>${item.type}</td><td>${item.kg.toFixed(2)}</td><td><button onclick="deleteItem(${i})">ลบ</button></td></tr>`;
+        tbody.innerHTML += row;
     });
     document.getElementById("totalWaste").textContent = total.toFixed(2);
 }
-function deleteItem(i) { items.splice(i, 1); renderTable(); }
 
-let totalLarvaeGlobal = 0;
+function deleteItem(i) {
+    items.splice(i, 1);
+    renderTable();
+}
+
 function calculate() {
     const totalWaste = parseFloat(document.getElementById("totalWaste").textContent) || 0;
     if (totalWaste === 0) return alert("กรุณาเพิ่มรายการอาหารเสียก่อน");
-    
+
     const bcr = parseFloat(document.getElementById("bcr").value) / 100;
     const days = parseFloat(document.getElementById("days").value);
-    
+
     const bsfNeeded = totalWaste;
     totalLarvaeGlobal = Math.round(totalWaste * 1000 / 0.15);
     const harvest = totalWaste * bcr * days;
     const reduce = totalWaste * 0.65;
     const frass = totalWaste * 0.35;
-    
+
     document.getElementById("bsfNeeded").textContent = bsfNeeded.toFixed(2);
     document.getElementById("larvaeCount").textContent = totalLarvaeGlobal.toLocaleString();
     document.getElementById("wasteReduce").textContent = reduce.toFixed(2);
     document.getElementById("harvest").textContent = harvest.toFixed(2);
     document.getElementById("frass").textContent = frass.toFixed(2);
-    
+
     const monthlyIncome = (harvest * 30 * 80 / 1000) + (frass * 30 * 30 / 1000);
-    document.getElementById("incomeBox").innerHTML = `รายได้ประมาณต่อเดือน: <strong>${monthlyIncome.toFixed(0)} บาท</strong> (หนอนสด 80 บ./กก. + ปุ๋ย 30 บ./กก.)`;
-    
+    document.getElementById("incomeBox").innerHTML = `
+        รายได้ประมาณต่อเดือน:<br>
+        • หนอนสด ≈ ${(harvest * 30).toFixed(1)} กก. → ${Math.round(harvest * 30 * 80 / 1000)} บาท<br>
+        • มูลปุ๋ย ≈ ${(frass * 30).toFixed(1)} กก. → ${Math.round(frass * 30 * 30 / 1000)} บาท<br>
+        <strong>รวม ≈ ${Math.round(monthlyIncome)} บาท/เดือน</strong> (ราคาอ้างอิงตลาดทั่วไป)
+    `;
+
     document.getElementById("resultSection").style.display = "block";
     document.getElementById("traySection").style.display = "block";
     document.getElementById("exportBtn").style.display = "block";
 
-    // สร้างกราฟ
+    // สร้างหรืออัปเดตกราฟ
     const ctx = document.getElementById('bsfChart').getContext('2d');
     if (myChart) myChart.destroy();
     myChart = new Chart(ctx, {
@@ -150,49 +241,71 @@ function calculate() {
         data: {
             labels: ['หนอนสด (กก./เดือน)', 'มูลปุ๋ย (กก./เดือน)'],
             datasets: [{
-                label: 'ผลผลิต',
+                label: 'ผลผลิตโดยประมาณ',
                 data: [harvest * 30, frass * 30],
-                backgroundColor: ['#4caf50', '#8bc34a']
+                backgroundColor: ['#4caf50', '#8bc34a'],
+                borderColor: ['#388e3c', '#689f38'],
+                borderWidth: 1
             }]
         },
-        options: { scales: { y: { beginAtZero: true } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
+        }
     });
 }
 
 function calculateTray() {
     if (totalLarvaeGlobal === 0) return alert("กรุณาคำนวณส่วน ③ ก่อน");
-    
+
     const width = parseFloat(document.getElementById("trayWidth").value);
     const length = parseFloat(document.getElementById("trayLength").value);
     const density = parseFloat(document.getElementById("density").value);
     const method = document.getElementById("measureMethod").value;
-    
+
     const area = width * length;
     const traysNeeded = Math.ceil(totalLarvaeGlobal / (area * density));
-    
+
     let amountText = "";
-    if (method === "rough") amountText = `${(totalLarvaeGlobal / 1428.57).toFixed(1)} ช้อน`;
-    else if (method === "detailed") amountText = `${(totalLarvaeGlobal / 1200).toFixed(1)} ช้อน`;
+    if (method === "rough") amountText = `${(totalLarvaeGlobal / 1428.57).toFixed(1)} ช้อน (คร่าว)`;
+    else if (method === "detailed") amountText = `${(totalLarvaeGlobal / 1200).toFixed(1)} ช้อน (ละเอียด)`;
     else amountText = `${(totalLarvaeGlobal / 712.5).toFixed(1)} กรัม`;
-    
+
     document.getElementById("trayResult").innerHTML = `
-        พื้นที่กระบะ: ${area} ซม²<br>
-        หนอนที่ต้องลง: ${totalLarvaeGlobal.toLocaleString()} ตัว<br>
-        จำนวนกระบะ: <strong>${traysNeeded} ใบ</strong><br>
-        ต้องตัก: <strong>${amountText}</strong><br><br>
-        <small>แนะนำ density 5 ตัว/ซม² เพื่อผลดีที่สุด</small>`;
+        พื้นที่กระบะ: ${area.toFixed(0)} ซม²<br>
+        หนอน baby ที่ต้องลง: ${totalLarvaeGlobal.toLocaleString()} ตัว<br>
+        จำนวนกระบะที่ต้องการ: <strong>${traysNeeded} ใบ</strong><br>
+        ต้องตัก/ชั่ง: <strong>${amountText}</strong><br><br>
+        <small>แนะนำ density 5 ตัว/ซม² เพื่อผลผลิตและสุขภาพหนอนดีที่สุด</small>
+    `;
     document.getElementById("trayResult").style.display = "block";
 }
 
 function exportToPDF() {
     const element = document.getElementById('pdfContent');
     const opt = {
-        margin:       1,
+        margin:       0.5,
         filename:     'BSF_Calculator_Results.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false,
+            width: element.offsetWidth,
+            height: element.offsetHeight,
+            windowWidth: element.scrollWidth,
+            windowHeight: element.scrollHeight
+        },
+        jsPDF:        { 
+            unit: 'in', 
+            format: 'a4', 
+            orientation: 'portrait',
+            compress: true
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
+
     html2pdf().set(opt).from(element).save();
 }
 </script>
