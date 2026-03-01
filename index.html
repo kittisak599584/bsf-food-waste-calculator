@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSF Food Waste Calculator</title>
+    <style>
+        body { font-family: 'Prompt', sans-serif; background: #f0f8f0; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2e8b57; }
+        section { margin-bottom: 40px; }
+        .add-btn { background: #2e8b57; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        input, select { width: 100%; padding: 8px; }
+        .result { background: #e8f5e8; padding: 20px; border-radius: 10px; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🐛 BSF FOOD WASTE CALCULATOR</h1>
+    <p style="text-align:center;">เครื่องมือคำนวณอาหารเสียสำหรับเลี้ยงหนอน BSF (Black Soldier Fly)</p>
+
+    <!-- ① รายการอาหารเสีย -->
+    <section>
+        <h2>① รายการอาหารเสีย</h2>
+        <button class="add-btn" onclick="addItem()">＋ เพิ่มรายการอาหาร</button>
+        <table id="itemTable">
+            <thead><tr><th>ประเภทอาหาร</th><th>กก./วัน</th><th>ลบ</th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <p><strong>อาหารเสียรวมต่อวัน:</strong> <span id="totalWaste">0</span> กก./วัน</p>
+    </section>
+
+    <!-- ② ตั้งค่าระบบ -->
+    <section>
+        <h2>② ตั้งค่าระบบ</h2>
+        <label>อัตราการย่อย (BCR) %: <input type="number" id="bcr" value="10" step="0.1"></label><br><br>
+        <label>ความหนาแน่นหนอน (ตัว/กก. อาหาร): <input type="number" id="density" value="5000" ></label><br><br>
+        <label>วันเก็บเกี่ยว (วัน): <input type="number" id="days" value="14"></label><br><br>
+        <button class="add-btn" onclick="calculate()">🔬 คำนวณระบบ BSF</button>
+    </section>
+
+    <!-- ③ ผลการคำนวณ -->
+    <section class="result" id="resultSection" style="display:none;">
+        <h2>③ ผลการคำนวณ</h2>
+        <p>🐛 หนอน BSF ที่ต้องการ: <strong id="bsfNeeded">0</strong> กก.</p>
+        <p>จำนวนหนอนโดยประมาณ: <strong id="larvaeCount">0</strong> ตัว</p>
+        <p>ลดขยะได้: <strong id="wasteReduce">0</strong> กก./วัน (65%)</p>
+        <p>ผลิตหนอนสดได้: <strong id="harvest">0</strong> กก./รอบ</p>
+        <p>มูลหนอน (ปุ๋ย): <strong id="frass">0</strong> กก./วัน</p>
+    </section>
+
+    <!-- ④ สูตรและการแทนค่า -->
+    <section>
+        <h2>④ สูตรและการแทนค่า</h2>
+        <table>
+            <tr><td>หนอนที่ต้องการ</td><td>= อาหารเสียรวม (กก.)</td></tr>
+            <tr><td>จำนวนหนอน (ตัว)</td><td>= อาหารเสีย (ก.) ÷ 0.15</td></tr>
+            <tr><td>หนอนสดที่ได้</td><td>= อาหารเสีย × BCR</td></tr>
+        </table>
+    </section>
+</div>
+
+<script>
+let items = [];
+function addItem() {
+    const type = prompt("ประเภทอาหาร (เช่น ผัก, ผลไม้, ข้าว)");
+    if (!type) return;
+    const kg = parseFloat(prompt("กิโลกรัมต่อวัน", "1")) || 0;
+    items.push({type, kg});
+    renderTable();
+}
+function renderTable() {
+    const tbody = document.querySelector("#itemTable tbody");
+    tbody.innerHTML = "";
+    let total = 0;
+    items.forEach((item, i) => {
+        total += item.kg;
+        const row = `<tr><td>${item.type}</td><td>${item.kg}</td><td><button onclick="deleteItem(${i})">ลบ</button></td></tr>`;
+        tbody.innerHTML += row;
+    });
+    document.getElementById("totalWaste").textContent = total.toFixed(2);
+}
+function deleteItem(i) {
+    items.splice(i, 1);
+    renderTable();
+}
+function calculate() {
+    const totalWaste = parseFloat(document.getElementById("totalWaste").textContent) || 0;
+    if (totalWaste === 0) return alert("กรุณาเพิ่มรายการอาหารเสียก่อน");
+    
+    const bcr = parseFloat(document.getElementById("bcr").value) / 100;
+    const density = parseFloat(document.getElementById("density").value);
+    
+    const bsfNeeded = totalWaste;
+    const larvae = Math.round(totalWaste * 1000 / 0.15);
+    const harvest = (totalWaste * bcr * 14).toFixed(2); // 14 วัน
+    const reduce = (totalWaste * 0.65).toFixed(2);
+    const frass = (totalWaste * 0.35).toFixed(2);
+    
+    document.getElementById("bsfNeeded").textContent = bsfNeeded.toFixed(2);
+    document.getElementById("larvaeCount").textContent = larvae.toLocaleString();
+    document.getElementById("wasteReduce").textContent = reduce;
+    document.getElementById("harvest").textContent = harvest;
+    document.getElementById("frass").textContent = frass;
+    document.getElementById("resultSection").style.display = "block";
+}
+</script>
+</body>
+</html>
