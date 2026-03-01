@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby BSF Calculator (อ้างอิงการคำนวณ อ.ดร.นภศูล ศิริจันทร์)</title>
+    <title>Baby BSF Calculator (เลียนแบบชีท อ.ดร.นภศูล)</title>
     <style>
         body { 
             font-family: 'Sarabun', sans-serif; 
@@ -80,6 +80,41 @@
             padding: 14px 40px; 
             font-size: 1.15em; 
         }
+        #densityWarning { 
+            display: none; 
+            margin: 15px 0; 
+            padding: 16px; 
+            background: #fffacd; 
+            border: 3px solid #c62828; 
+            border-radius: 10px; 
+            color: #b71c1c; 
+            font-weight: bold; 
+            font-size: 1.05em; 
+            text-align: center; 
+            line-height: 1.4; 
+        }
+        #floorSpaceResult { 
+            margin-top: 20px; 
+            padding: 18px; 
+            border-radius: 10px; 
+            display: none; 
+            font-size: 1.05em; 
+            transition: all 0.3s ease; 
+        }
+        #floorSpaceResult.normal { 
+            background: #e8f5e8; 
+            border: 2px solid #90EE90; 
+        }
+        #floorSpaceResult.stacked { 
+            background: #dcedc8; 
+            border: 2px solid #388e3c; 
+            box-shadow: 0 4px 12px rgba(0,100,0,0.15); 
+        }
+        #stackBenefit { 
+            margin-top: 10px; 
+            font-size: 0.95em; 
+            font-weight: bold; 
+        }
         @media (max-width: 600px) {
             .container { padding: 15px; }
             h1 { font-size: 1.7em; }
@@ -96,21 +131,73 @@
     <h1>🐛 Baby BSF Calculator</h1>
     <p style="text-align:center; color:#444; font-size:1.1em;">
         คำนวณปริมาณหนอน BSF อายุ 5 วัน สำหรับลงกระบะเลี้ยง<br>
-        (อ้างอิง "baby BSF calculator" ของ อ.ดร.นภศูล ศิริจันทร์)
+        (เลียนแบบชีท "baby BSF calculator" ของ อ.ดร.นภศูล ศิริจันทร์)
     </p>
 
     <div class="section">
         <h2>① ข้อมูลกระบะเลี้ยง</h2>
+
         <label>ความกว้างกระบะ (cm):</label>
         <input type="number" id="width" value="40" min="10" step="1">
 
         <label>ความยาวกระบะ (cm):</label>
         <input type="number" id="length" value="60" min="20" step="1">
 
-        <label>ความหนาแน่นที่ต้องการ (ตัว/ซม²):</label>
-        <input type="range" id="density" min="4" max="9" step="0.1" value="5">
+        <label>ความหนาแน่นที่ต้องการ (ตัว/ซม², แนะนำ 4–9):</label>
+        <input type="range" id="density" min="2" max="12" step="0.1" value="5">
         <div style="text-align:center; font-weight:bold; margin:10px 0; font-size:1.2em;">
             <span id="densityShow">5</span> ตัว/ซม²
+        </div>
+
+        <!-- คำเตือนเด่นมาก -->
+        <div id="densityWarning">
+            ⚠️ คำเตือนสำคัญ!<br>
+            ความหนาแน่นควรอยู่ระหว่าง 4–9 ตัว/ซม² เท่านั้น<br>
+            (ต่ำเกินไปเสียพื้นที่ / สูงเกินไปหนอนเครียด โตช้า กลิ่นแรง)
+        </div>
+
+        <!-- ภาพตัวอย่างกระบะขนาดต่าง ๆ -->
+        <div style="margin:25px 0; text-align:center;">
+            <p style="font-weight:bold; margin-bottom:10px;">ตัวอย่างขนาดกระบะที่ใช้กันทั่วไป</p>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px;">
+                <div style="max-width:170px;">
+                    <img src="https://images.unsplash.com/photo-1581092160560-1c1e428e6d7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="กระบะเล็ก" style="width:100%; border-radius:6px; border:1px solid #ddd;">
+                    <p style="font-size:0.9em; margin:5px 0;">เล็ก (30×40 cm)<br>เหมาะทดลอง</p>
+                </div>
+                <div style="max-width:170px;">
+                    <img src="https://images.unsplash.com/photo-1597843786411-a7fa8ed2f1c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="กระบะกลาง" style="width:100%; border-radius:6px; border:1px solid #ddd;">
+                    <p style="font-size:0.9em; margin:5px 0;">กลาง (40×60 cm)<br>ขนาดมาตรฐาน</p>
+                </div>
+                <div style="max-width:170px;">
+                    <img src="https://images.unsplash.com/photo-1581092162387-4d4e8d7d8f3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="กระบะใหญ่" style="width:100%; border-radius:6px; border:1px solid #ddd;">
+                    <p style="font-size:0.9em; margin:5px 0;">ใหญ่ (50×80 cm)<br>ฟาร์มขนาดกลาง</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ภาพ stack ชั้นวางจริง -->
+        <div style="margin:25px 0; text-align:center;">
+            <p style="font-weight:bold; margin-bottom:10px;">ตัวอย่างการซ้อนกระบะเป็นชั้น (Stack)</p>
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a9c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                 alt="ตัวอย่างชั้นวางกระบะ BSF" 
+                 style="max-width:100%; border-radius:8px; border:1px solid #ddd; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+            <p style="font-size:0.9em; margin-top:8px; color:#555;">
+                ตัวอย่างการซ้อนกระบะ 3–5 ชั้น (ประหยัดพื้นที่พื้นมาก)
+            </p>
+        </div>
+
+        <!-- จำนวนชั้นกระบะ -->
+        <label>จำนวนชั้นกระบะ (stack ซ้อนกัน):</label>
+        <input type="number" id="stackLayers" value="1" min="1" max="10" step="1">
+
+        <!-- แสดงพื้นที่ใช้จริงบนพื้น (ซม² + ตร.ม. + ตำแหน่ง) -->
+        <div id="floorSpaceResult" class="normal" style="display:none;">
+            <strong>พื้นที่พื้นจริงที่ใช้:</strong><br>
+            <span id="floorAreaCm" style="font-size:1.2em; color:#006400;"></span> ซม² 
+            (<span id="floorAreaM2" style="font-size:1.2em; color:#006400;"></span> ตารางเมตร)<br><br>
+            <strong>จำนวนตำแหน่งบนพื้น (จุดวางชั้นวาง):</strong><br>
+            <span id="floorPositions" style="font-size:1.3em; font-weight:bold;"></span> ตำแหน่ง
+            <p id="stackBenefit" class="note"></p>
         </div>
     </div>
 
@@ -154,7 +241,15 @@
 
 <script>
 document.getElementById('density').addEventListener('input', function() {
-    document.getElementById('densityShow').textContent = this.value;
+    const val = parseFloat(this.value);
+    document.getElementById('densityShow').textContent = val;
+    
+    const warning = document.getElementById('densityWarning');
+    if (val < 4 || val > 9) {
+        warning.style.display = 'block';
+    } else {
+        warning.style.display = 'none';
+    }
 });
 
 let myChart = null;
@@ -165,6 +260,7 @@ function calculate() {
     const density = parseFloat(document.getElementById('density').value) || 5;
     const totalLarvae = parseFloat(document.getElementById('totalLarvae').value) || 0;
     const method = document.getElementById('method').value;
+    const layers = parseFloat(document.getElementById('stackLayers').value) || 1;
 
     if (width <= 0 || length <= 0) {
         alert("กรุณาใส่ขนาดกระบะให้ถูกต้อง");
@@ -177,7 +273,8 @@ function calculate() {
 
     const area = width * length;
     const perTray = Math.round(area * density);
-    const numTrays = Math.ceil(totalLarvae / perTray);
+    const numTraysSingle = Math.ceil(totalLarvae / perTray);
+    const numTraysTotal = Math.ceil(numTraysSingle / layers);
 
     let amount = "";
     let unit = "";
@@ -194,12 +291,39 @@ function calculate() {
 
     document.getElementById('area').textContent = area.toFixed(0) + " ซม²";
     document.getElementById('perTray').textContent = perTray.toLocaleString() + " ตัว";
-    document.getElementById('numTrays').textContent = numTrays.toLocaleString() + " ใบ";
+    document.getElementById('numTrays').textContent = numTraysTotal.toLocaleString() + " ใบ (ซ้อน " + layers + " ชั้น)";
     document.getElementById('amount').textContent = amount + " " + unit;
     document.getElementById('amountLine').textContent = "ต้องตัก/ชั่งทั้งหมด:";
 
     document.getElementById('resultBox').style.display = 'block';
     document.getElementById('exportBtn').style.display = 'block';
+
+    // คำนวณพื้นที่ใช้จริงบนพื้น
+    const areaCm2 = area;
+    const areaM2 = (areaCm2 / 10000).toFixed(2);
+    const floorPositions = numTraysTotal;
+
+    document.getElementById('floorAreaCm').textContent = areaCm2.toLocaleString();
+    document.getElementById('floorAreaM2').textContent = areaM2;
+    document.getElementById('floorPositions').textContent = floorPositions.toLocaleString();
+
+    // เปลี่ยนสี + ข้อความเมื่อซ้อนหลายชั้น
+    const resultBox = document.getElementById('floorSpaceResult');
+    const stackBenefit = document.getElementById('stackBenefit');
+
+    if (layers > 1) {
+        resultBox.className = 'stacked';
+        stackBenefit.textContent = `ซ้อน ${layers} ชั้น → ประหยัดพื้นที่พื้นถึง ${((layers - 1) * 100 / layers).toFixed(0)}% !`;
+        stackBenefit.style.color = '#2e7d32';
+        stackBenefit.style.fontWeight = 'bold';
+    } else {
+        resultBox.className = 'normal';
+        stackBenefit.textContent = '(ใช้ชั้นเดียว ไม่มีการซ้อน)';
+        stackBenefit.style.color = '#555';
+        stackBenefit.style.fontWeight = 'normal';
+    }
+
+    document.getElementById('floorSpaceResult').style.display = 'block';
 
     // สร้างกราฟแท่ง (ขนาดเล็กลงเพื่อพอดี PDF 1 หน้า)
     const ctx = document.getElementById('bsfChart').getContext('2d');
@@ -219,12 +343,8 @@ function calculate() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true }
-            },
-            plugins: {
-                legend: { position: 'top' }
-            }
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { position: 'top' } }
         }
     });
 }
@@ -239,7 +359,6 @@ async function exportToPDF() {
 
     const element = document.getElementById('pdfContent');
 
-    // Render เนื้อหาให้ชัดเจนบนมือถือ
     const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -256,7 +375,6 @@ async function exportToPDF() {
     const pdfWidth = doc.internal.pageSize.getWidth();
     const pdfHeight = doc.internal.pageSize.getHeight();
 
-    // คำนวณขนาดให้พอดี 1 หน้า (ย่อให้ไม่ล้น)
     const ratio = Math.min(pdfWidth / imgProps.width, pdfHeight / imgProps.height);
     const imgWidth = imgProps.width * ratio;
     const imgHeight = imgProps.height * ratio;
